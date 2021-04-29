@@ -5,11 +5,15 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 //MODEL CLASS
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @Entity
 public class Product {
 	@Id

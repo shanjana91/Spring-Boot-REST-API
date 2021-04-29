@@ -29,6 +29,7 @@ public class ProductService {
 	//GET
 	public List<Product> getProducts(){
 		List<Product> p=repo.findAll();
+		//System.out.println(p);
 		return p;
 	}
 	
@@ -45,7 +46,7 @@ public class ProductService {
 	//DELETE
 	public String deleteProduct(int id) {
 		repo.deleteById(id);
-		return "Product removed : "+id;
+		return "{\"message\":\"Product removed successfully , ID : "+id+"\"}";
 	}
 	
 	//UPDATE
