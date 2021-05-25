@@ -1,6 +1,0 @@
-com\example\ProductCrud1Application.class
-com\example\SwaggerConfig\SwaggerConfig.class
-com\example\Repository\ProductRepo.class
-com\example\Controller\ProductController.class
-com\example\Service\ProductService.class
-com\example\Entity\Product.class
