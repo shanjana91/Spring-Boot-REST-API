@@ -1,0 +1,36 @@
+#document format version of docker compose
+version: '3'
+
+#list the multiple containers to be run
+services: 
+  
+  #container:1 MySQL
+  mysql-standalone:
+    image: mysql:5.6
+    environment:
+    - MYSQL_ROOT_PASSWORD=password
+    - MYSQL_USER=shan
+    - MYSQL_PASSWORD=password
+    - MYSQL_DATABASE=test
+    ports:
+    - 3307:3306
+    #to persist the data in container
+    #location on host: " \\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\ "
+    volumes:
+     - my-data:/var/lib/mysql
+  
+  #container:2 spring-boot  
+  products:
+    image: products
+    #in case MYSQL takes time to run
+    restart: always
+    depends_on:
+      - mysql-standalone
+    #expose 8081 of container to 8081 of host machine
+    ports:
+    - 8081:8081
+    links: 
+    - mysql-standalone:mysql
+  
+volumes:
+  my-data: 
