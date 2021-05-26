@@ -21,7 +21,7 @@ services:
   
   #container:2 spring-boot  
   products:
-    image: products
+    image: shan0009/products
     #in case MYSQL takes time to run
     restart: always
     depends_on:
