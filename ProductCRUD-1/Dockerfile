@@ -5,7 +5,7 @@ FROM openjdk:8
 ADD ./target/ProductCRUD-1-0.0.1-SNAPSHOT.jar app.jar
 
 #expose this port in the container
-EXPOSE 8081
+EXPOSE 8082
 
 #this the cmd to be executed when container runs
 ENTRYPOINT ["java","-jar","app.jar"]
