@@ -53,7 +53,7 @@ pipeline {
             dir('ProductCRUD-1') {
                 bat 'docker-compose stop'
                 }
-            junit 'ProductCRUD-2/*target/surefire-reports/TEST-*.xml'
+            junit 'ProductCRUD-1/*target/surefire-reports/TEST-*.xml'
         }
      }
 }
