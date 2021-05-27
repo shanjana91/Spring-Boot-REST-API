@@ -1,0 +1,59 @@
+pipeline {
+    agent any
+    tools{
+        maven 'Maven_Home'
+        jdk 'Java_Home'
+    }
+    stages {
+        stage('Fetching changes from git') {
+            steps {
+                git credentialsId: '64953833-6d7a-4cc4-82a2-753650dd9aba',
+                url: 'https://github.com/shanjana91/Spring-Boot-Rest-API'
+            }
+        }
+        stage('Maven Build') {
+            steps {
+               bat 'mvn -f ProductCRUD-1/pom.xml clean install -DskipTests'
+            }
+        }
+         stage('Junit tests') {
+            steps {
+               bat 'mvn -f ProductCRUD-1/pom.xml test'
+            }
+        }
+        stage('Building Docker images') {
+            steps {
+               bat 'docker rmi -f shan0009/products:1.0'
+               bat 'docker build -t shan0009/products:1.0 ./ProductCRUD-1'
+            }
+        }
+        stage('Push Docker image') {
+            steps {
+                withCredentials([string(credentialsId: 'docker-pwd', variable: 'password')]) {
+                     bat "docker login -u shan0009 -p ${password}"
+                }
+                bat 'docker push shan0009/products:1.0'
+            }
+        }
+        stage('docker-compose') {
+              
+            steps {
+                echo 'APPLICATION STARTING'
+                dir('ProductCRUD-1') {
+                    bat 'docker-compose up'
+                }
+              
+               
+            }
+    }
+    }
+     post {
+        always {
+            echo 'APPLICATION STOPPED'
+            dir('ProductCRUD-1') {
+                bat 'docker-compose stop'
+                }
+            junit 'ProductCRUD-2/*target/surefire-reports/TEST-*.xml'
+        }
+     }
+}

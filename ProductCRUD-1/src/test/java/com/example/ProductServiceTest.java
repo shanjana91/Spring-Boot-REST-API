@@ -9,12 +9,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.example.Entity.Product;
 import com.example.Repository.ProductRepo;
@@ -22,12 +30,37 @@ import com.example.Service.ProductService;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
+@Testcontainers
 class ProductServiceTest {
 	@Autowired
 	private ProductService service;
 	
 	@MockBean
 	private ProductRepo repo;
+	
+	@Container
+	private static final MySQLContainer Mysqlcontainer = new MySQLContainer("mysql:5.6")
+			.withUsername("shan")
+			.withPassword("password")
+			.withDatabaseName("test");
+	
+	@BeforeAll
+	public static void beforeAll(){
+		Mysqlcontainer.start();
+	}
+	
+	@AfterAll
+	public static void afterAll() {
+		Mysqlcontainer.stop();
+	}
+	
+	
+	@DynamicPropertySource
+	public static void setDatasourceProperties(final DynamicPropertyRegistry registry) {
+	    registry.add("spring.datasource.url", Mysqlcontainer::getJdbcUrl);
+	    registry.add("spring.datasource.password",Mysqlcontainer::getPassword);
+	    registry.add("spring.datasource.username", Mysqlcontainer::getUsername);
+	}
 	
 	@Test
 	public void getAllProductsTest() {

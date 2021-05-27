@@ -8,17 +8,26 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.aspectj.lang.annotation.Before;
+import org.junit.Rule;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.RequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import com.example.Controller.ProductController;
 import com.example.Entity.Product;
@@ -26,7 +35,17 @@ import com.example.Service.ProductService;
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(value=ProductController.class) //to test MVC applications
+@Testcontainers  /*Java library to support Junit tests that provides throwaway instances of DBs etc
+				   running inside docker container	*/			
 class ProductControllerTest {
+	
+	@Container
+	//provides containerized instance of Mysql DB
+	// Mocking a DB that is exclusively available for tests
+	private static final MySQLContainer Mysqlcontainer = new MySQLContainer("mysql:5.6") //docker img to be used
+			.withUsername("shan")
+			.withPassword("password")
+			.withDatabaseName("test");
 
 	@Autowired
 	private MockMvc mockmvc; //to enable server side testing capability
@@ -35,6 +54,29 @@ class ProductControllerTest {
 	private ProductService service;
 	
 	Product p=new Product(1,"Television",14,23000);
+	
+	@BeforeAll
+	/* MYsql container starts running before tests are started
+	 * could check with 'docker ps' */
+	public static void beforeAll(){
+		Mysqlcontainer.start();
+	}
+	
+	@AfterAll
+	/* MYsql container stops running before tests are started
+	 * could check with 'docker ps'*/
+	public static void afterAll() {
+		Mysqlcontainer.stop();
+	}
+	
+	
+	@DynamicPropertySource
+	/*Set properties to link the application context with docker container's database */
+	public static void setDatasourceProperties(final DynamicPropertyRegistry registry) {
+	    registry.add("spring.datasource.url", Mysqlcontainer::getJdbcUrl);
+	    registry.add("spring.datasource.password",Mysqlcontainer::getPassword);
+	    registry.add("spring.datasource.username", Mysqlcontainer::getUsername);
+	}
 	
 	@Test
 	public void getProductsTest() throws Exception {
