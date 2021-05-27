@@ -23,7 +23,7 @@ pipeline {
         }
         stage('Building Docker images') {
             steps {
-               bat 'docker rmi -f shan0009/products:1.0'
+             
                bat 'docker build -t shan0009/products:1.0 ./ProductCRUD-1'
             }
         }
